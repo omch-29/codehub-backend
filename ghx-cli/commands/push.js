@@ -124,7 +124,7 @@ async function pushRepo() {
 
 
         // Fetch existing repo content so we can merge (and dedupe)
-        const dbRes = await axios.get(`http://localhost:3000/repo/id/${repoId}`);
+        const dbRes = await axios.get(`https://codehub-backend-jj4b.onrender.com/repo/id/${repoId}`);
         // backend returns array; first element is repo object
         const existing = (dbRes.data && dbRes.data[0] && dbRes.data[0].content) || [];
 
@@ -172,7 +172,7 @@ async function pushRepo() {
         const finalFiles = Object.values(contentMap);
 
         // push finalFiles to backend (replace content)
-        await axios.put(`http://localhost:3000/repo/update/${repoId}`, {
+        await axios.put(`https://codehub-backend-jj4b.onrender.com/repo/update/${repoId}`, {
             content: finalFiles,
             message: commitMessage,
             description: ""

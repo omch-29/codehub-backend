@@ -47,7 +47,7 @@ async function commitRepo(message) {
             );
         }
 
-        await axios.put(`http://localhost:3000/repo/update/${repoId}`, {
+        await axios.put(`https://codehub-backend-jj4b.onrender.com/repo/update/${repoId}`, {
                     message:message,
                 });
 
