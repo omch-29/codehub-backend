@@ -1,0 +1,208 @@
+
+const express = require("express");
+const repoController = require("../controllers/repoController");
+const Repository = require("../models/repoModel");
+
+const path = require("path");
+const dotenv = require('dotenv');
+const fs = require("fs");
+const repoRouter = express.Router();
+dotenv.config();
+
+
+
+const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
+
+const s3 = new S3Client({
+  region: "eu-north-1" || "ap-south-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+  },
+});
+
+
+// BASE ROUTE WILL BE /repo (added in mainRouter)
+repoRouter.post("/create", repoController.createRepository);
+repoRouter.get("/all", repoController.getAllRepositories);
+repoRouter.get("/id/:id", repoController.fetchRepositoryById);
+repoRouter.get("/name/:name", repoController.fetchRepositoryByName);
+repoRouter.get("/user/:userID", repoController.fetchRepositoryForCurrentUser);
+repoRouter.get("/activity/:userID", repoController.getActivityForUser);
+repoRouter.put("/update/:id", repoController.updateRepositoryById);
+repoRouter.put("/visibility/:id", repoController.toggleVisibilityById);
+repoRouter.delete("/delete/:id", repoController.deleteRepositoryById);
+repoRouter.get("/contributions/repo/:repoId", repoController.getPushData);
+repoRouter.post("/log-push", repoController.logPush);
+
+
+// 🔥 SEARCH ROUTE
+repoRouter.get("/search", async (req, res) => {
+  try {
+    const { name } = req.query;
+    if (!name) return res.json([]);
+
+    const results = await Repository.find({
+      name: { $regex: name, $options: "i" },
+    });
+
+    res.json(results);
+  } catch (err) {
+    console.error("Search error:", err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+// READ FILE FROM S3
+
+// repoRouter.get("/file/:repoId/:path", async (req, res) => {
+//     try {
+//         const key = decodeURIComponent(req.params.path); // <- fullS3Path
+
+//         const data = await s3.getObject({
+//             Bucket: s3_BUCKET,
+//             Key: key
+//         }).promise();
+
+//         res.setHeader("Content-Type", data.ContentType || "application/octet-stream");
+//         res.send(data.Body);
+//     } catch (err) {
+//         console.error("Download error:", err);
+//         res.status(500).send("Error downloading file");
+//     }
+// });
+
+
+repoRouter.get("/file/:repoId", async (req, res) => {
+  try {
+    const key = decodeURIComponent(req.query.path);
+
+    const data = await s3.send(new GetObjectCommand({
+      Bucket: process.env.S3_BUCKET,
+      Key: key
+    }));
+
+    let chunks = [];
+    for await (const chunk of data.Body) chunks.push(chunk);
+    const content = Buffer.concat(chunks).toString("utf8");
+
+    res.setHeader("Content-Type", "text/plain");
+    return res.send(content);
+
+  } catch (err) {
+    console.error("S3 ERROR:", err);
+    return res.status(500).json({ error: "S3 read failed" });
+  }
+});
+
+
+
+// LIST FILES & FOLDERS INSIDE AN S3 FOLDER
+const { ListObjectsV2Command } = require("@aws-sdk/client-s3");
+
+repoRouter.get("/folder/:repoId", async (req, res) => {
+  try {
+    const prefix = decodeURIComponent(req.query.prefix || "");  
+
+    const data = await s3.send(
+      new ListObjectsV2Command({
+        Bucket: process.env.S3_BUCKET,
+        Prefix: prefix,
+        Delimiter: "/"   // <-- IMPORTANT (splits folders)
+      })
+    );
+
+    const folders = data.CommonPrefixes?.map(p => ({
+      name: p.Prefix.split("/").slice(-2, -1)[0],
+      path: p.Prefix,
+      type: "folder"
+    })) || [];
+
+    const files = data.Contents?.filter(obj => obj.Key !== prefix)
+      .map(obj => ({
+        name: obj.Key.split("/").pop(),
+        path: obj.Key,
+        type: "file"
+      })) || [];
+
+    res.json({ folders, files });
+  } catch (err) {
+    console.error("S3 LIST ERROR:", err);
+    res.status(500).json({ error: "Cannot list folder" });
+  }
+});
+
+
+
+
+// repoRouter.get("/file/:repoId", async (req, res) => {
+//   try {
+    
+//     const { path } = req.query;
+
+//     if (!path) return res.status(400).json({ error: "File path is required" });
+
+//     const BUCKET = process.env.S3_BUCKET;
+
+//     console.log("REQUEST →", BUCKET, path);
+
+//     const command = new GetObjectCommand({
+//       Bucket: BUCKET,
+//       Key: path,
+//     });
+
+//     const data = await s3.send(command);
+
+//     let chunks = [];
+//     for await (const chunk of data.Body) chunks.push(chunk);
+//     const content = Buffer.concat(chunks).toString("utf8");
+
+//     return res.json({ content });
+
+//   } catch (err) {
+//     console.error("S3 ERROR:", err);
+//     return res.status(500).json({ error: "S3 read failed" });
+//   }
+// });
+
+// repoRouter.get("/file/:repoId", async (req, res) => {
+//   const { repoId } = req.params;
+//   const { path } = req.query;
+
+//   try {
+//     const repo = await Repository.findById(repoId);
+//     if (!repo) return res.status(404).send("Repo not found");
+
+//     const file = repo.content.find(f => f.path === path);
+//     if (!file) return res.status(404).send("File not found");
+
+//     const fs = require("fs");
+//     // const data = fs.readFileSync(file.path, "utf8");
+//     const fullPath = path.join(__dirname, "..", "..", file.path);
+//     const data = fs.readFileSync(fullPath, "utf8");
+//     res.send(data);
+//   } catch (err) {
+//     res.status(500).send("Error reading file");
+//   }
+// });
+// repoRouter.get("/file", async (req, res) => {
+//     try {
+//         const { repoId, filename, commit } = req.query;
+
+//         const repo = await Repository.findById(repoId);
+//         if (!repo) return res.status(404).json({ error: "Repo not found" });
+
+//         const file = repo.content.find(f => f.filename === filename && f.commit === commit);
+//         if (!file) return res.status(404).json({ error: "File not found" });
+
+//         const fileData = await CommitFile.findOne({ path: file.path });
+
+//         res.json({
+//             filename,
+//             content: fileData.content,
+//             commitTime: fileData.updatedAt
+//         });
+//     } catch (err) {
+//         res.status(500).json({ error: "Server error" });
+//     }
+// });
+module.exports = repoRouter;
