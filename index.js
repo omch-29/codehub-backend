@@ -68,19 +68,46 @@ function startServer(){
     .then(()=>console.log("MongoDB connected!"))
     .catch((err)=>console.error("Unable to connect",err));
 
-    app.use(cors({origin: function(origin, callback) {
-    if (origin === "https://main.dc5bs2bxp9e9j.amplifyapp.com" || 
-        origin === "https://codehub-frontend-d66m.onrender.com") {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },   
+
+    const allowedOrigins = [
+  "http://localhost:3000",
+  "https://main.dc5bs2bxp9e9j.amplifyapp.com",
+  "https://codehub-frontend-d66m.onrender.com",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow health checks and server-to-server calls
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-    }));
+
+
+//     app.use(cors({origin: function(origin, callback) {
+//     if (origin === "https://main.dc5bs2bxp9e9j.amplifyapp.com" || 
+//         origin === "https://codehub-frontend-d66m.onrender.com") {
+//       callback(null, true);
+//     } else {
+//       callback(new Error("Not allowed by CORS"));
+//     }
+//   },   
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+
+//     }));
     app.use("/", mainRouter);
    
 
