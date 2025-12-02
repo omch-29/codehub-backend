@@ -68,7 +68,7 @@ function startServer(){
     .then(()=>console.log("MongoDB connected!"))
     .catch((err)=>console.error("Unable to connect",err));
 
-    app.use(cors({origin: "http://localhost:5173",   
+    app.use(cors({origin: "https://codehub-frontend-d66m.onrender.com",   
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
