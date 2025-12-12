@@ -44,6 +44,7 @@ repoRouter.get("/search", async (req, res) => {
 
     const results = await Repository.find({
       name: { $regex: name, $options: "i" },
+      visibility: true,
     });
 
     res.json(results);
