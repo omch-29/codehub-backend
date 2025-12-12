@@ -35,7 +35,7 @@ async function createRepository(req, res){
 async function getAllRepositories(req, res){
     try {
         
-        const repositories = await Repository.find({})
+        const repositories = await Repository.find({visibility: true})
         .populate("owner")
         .populate("issues");
 
