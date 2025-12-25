@@ -22,7 +22,6 @@ const s3 = new S3Client({
 });
 
 
-// BASE ROUTE WILL BE /repo (added in mainRouter)
 repoRouter.post("/create", repoController.createRepository);
 repoRouter.get("/all", repoController.getAllRepositories);
 repoRouter.get("/id/:id", repoController.fetchRepositoryById);
@@ -53,11 +52,10 @@ repoRouter.get("/search", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-// READ FILE FROM S3
 
 // repoRouter.get("/file/:repoId/:path", async (req, res) => {
 //     try {
-//         const key = decodeURIComponent(req.params.path); // <- fullS3Path
+//         const key = decodeURIComponent(req.params.path);
 
 //         const data = await s3.getObject({
 //             Bucket: s3_BUCKET,
@@ -97,7 +95,6 @@ repoRouter.get("/file/:repoId", async (req, res) => {
 
 
 
-// LIST FILES & FOLDERS INSIDE AN S3 FOLDER
 const { ListObjectsV2Command } = require("@aws-sdk/client-s3");
 
 repoRouter.get("/folder/:repoId", async (req, res) => {
@@ -108,7 +105,7 @@ repoRouter.get("/folder/:repoId", async (req, res) => {
       new ListObjectsV2Command({
         Bucket: process.env.S3_BUCKET,
         Prefix: prefix,
-        Delimiter: "/"   // <-- IMPORTANT (splits folders)
+        Delimiter: "/"   
       })
     );
 

@@ -78,7 +78,6 @@ function startServer(){
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow health checks and server-to-server calls
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -132,7 +131,6 @@ app.use(
     const db = mongoose.connection;
     db.once("open", async()=>{
         console.log("CRUD opeartions called");
-        //to be crud
     });
 
     httpServer.listen(port, ()=>{

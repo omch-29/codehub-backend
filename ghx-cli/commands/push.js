@@ -1,6 +1,5 @@
 
 
-// ghx-cli/commands/push.js
 const fs = require("fs").promises;
 const fssync = require("fs");
 const path = require("path");
@@ -20,7 +19,6 @@ async function connectDB(){
 
 
 
-// uploadRecursive:
 
 async function uploadRecursive(localPath, baseDir, commitId, collectedFiles) {
 
@@ -52,12 +50,12 @@ async function uploadRecursive(localPath, baseDir, commitId, collectedFiles) {
         const relative = path.relative(baseDir, localPath).replace(/\\/g, "/");
 
         const cleanPath = relative.replace(/\\/g, "/");
-        // const s3Key = `commits/${commitId}/${relative}`; // canonical S3 key and DB path
+        // const s3Key = `commits/${commitId}/${relative}`;
         const s3Key = `repo/${commitId}/${cleanPath}`;
         const fileIdPath = cleanPath;
         const fileContent = await fs.readFile(localPath);
 
-        // upload to S3 under canonical key
+    
         await s3.upload({
             Bucket: s3_BUCKET,
             Key: s3Key,
@@ -65,25 +63,25 @@ async function uploadRecursive(localPath, baseDir, commitId, collectedFiles) {
         }).promise();
 
         const filename = path.basename(localPath);
-        const folder = path.dirname(relative).replace(/\\/g, "/"); // relative folder inside commit
+        const folder = path.dirname(relative).replace(/\\/g, "/"); 
 
         collectedFiles.push({
             // filename,
             // commit: commitId,
-            // // path: s3Key,      // canonical path saved to DB
+            // // path: s3Key,      // 
             // // folder: folder === "." ? "" : folder,
             // // isFolder: false
-            // path: cleanPath,   // <-- canonical
+            // path: cleanPath,   //
             // folder: folder === "." ? "" : folder,
-            // fullS3Path: s3Key,  // <-- actual file stored in S3
+            // fullS3Path: s3Key,  // 
             // fullPath: cleanPath,
             // isFolder: false
              filename,
     commit: commitId,
-    path: s3Key,        // <--- ALWAYS THIS
+    path: s3Key,        
     folder: folder === "." ? "" : folder,
-    fullS3Path: s3Key,  // <--- ALWAYS THIS
-    fullPath: s3Key,    // <--- ALWAYS THIS
+    fullS3Path: s3Key,  
+    fullPath: s3Key,    
     isFolder: false
         });
     }
@@ -99,7 +97,7 @@ async function pushRepo() {
         const repoId = config.repoId;
 
         if (!repoId) {
-            console.log("❌ repoId missing in .codehub/config.json");
+            console.log(" repoId missing in .codehub/config.json");
             return;
         }
 
@@ -107,7 +105,7 @@ async function pushRepo() {
         const commitDirs = await fs.readdir(commitsPath);
 
         if (commitDirs.length === 0) {
-            console.log("❌ No commits to push");
+            console.log(" No commits to push");
             return;
         }
 
@@ -122,41 +120,39 @@ async function pushRepo() {
 
 
 
-
-        // Fetch existing repo content so we can merge (and dedupe)
         const dbRes = await axios.get(`https://codehub-backend-jj4b.onrender.com/repo/id/${repoId}`);
-        // backend returns array; first element is repo object
+        
         const existing = (dbRes.data && dbRes.data[0] && dbRes.data[0].content) || [];
 
-        // map existing by path for fast overwrite
+    
         const contentMap = {};
         existing.forEach(f => {
             if (!f || !f.path) return;
             contentMap[f.path] = f;
         });
 
-        // const commitDirs = await fs.readdir(commitsPath);
+        
         let newFiles = [];
 
         for (const commitId of commitDirs) {
             const commitFolder = path.join(commitsPath, commitId);
 
-            // commitFolder may contain files/folders
+            // commitFolder
             await uploadRecursive(
                 commitFolder,
-                commitFolder, // baseDir
+                commitFolder, 
                 commitId,
                 newFiles
             );
         }
 
-        // merge/overwrite: newFiles wins
+        
         for (const f of newFiles) {
 
             for (const existingPath in contentMap) {
         const old = contentMap[existingPath];
 
-        // compare logical location (folder + filename)
+    
         if (old.filename === f.filename && old.folder === f.folder) {
             delete contentMap[existingPath];
         }
@@ -171,7 +167,7 @@ async function pushRepo() {
         
         const finalFiles = Object.values(contentMap);
 
-        // push finalFiles to backend (replace content)
+        // push
         await axios.put(`https://codehub-backend-jj4b.onrender.com/repo/update/${repoId}`, {
             content: finalFiles,
             message: commitMessage,
@@ -184,7 +180,7 @@ async function pushRepo() {
         await connectDB();
 
 
-        console.log("✅ Push complete!");
+        console.log(" Push complete!");
         // console.log("Using repoId:", repoId);
 
         await PushLog.create({
@@ -194,7 +190,7 @@ async function pushRepo() {
 
         process.exit(0);
     } catch (err) {
-        console.error("❌ Push error:", err);
+        console.error(" Push error:", err);
         process.exit(1);
     }
 }

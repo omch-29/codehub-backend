@@ -118,7 +118,6 @@ async function updateUserProfile(req, res) {
   const currentID = req.params.id;
   const { email, password } = req.body;
 
-//   console.log("🟡 Received ID:", currentID);
 
   try {
     await connectClient();
@@ -134,9 +133,7 @@ async function updateUserProfile(req, res) {
       updateFields.password = hashedPassword;
     }
 
-    // 👇 Debugging
-    // console.log("🟢 Trying to update user with ID:", currentID);
-    // console.log("🟢 Update fields:", updateFields);
+  
 
     const result = await usersCollection.findOneAndUpdate(
       { _id: new ObjectId(currentID) },
@@ -144,7 +141,7 @@ async function updateUserProfile(req, res) {
       { returnDocument: "after" }
     );
 
-    // console.log("🔵 Raw result:", result);
+    // console.log("result:", result);
 
     if (!result) {
       return res.status(404).json({ message: "User not found!" });
@@ -157,102 +154,6 @@ async function updateUserProfile(req, res) {
   }
 }
 
-// async function updateUserProfile(req, res) {
-//   const currentID = req.params.id;   // e.g. "6910208de2bb20a243e4118d"
-//   const { email, password } = req.body;
-
-//   try {
-//     await connectClient();
-//     const db = client.db("githubclone");
-//     const usersCollection = db.collection("users");
-
-//     const updateFields = {};
-//     if (email) updateFields.email = email;
-
-//     if (password) {
-//       const salt = await bcrypt.genSalt(10);
-//       const hashedPassword = await bcrypt.hash(password, salt);
-//       updateFields.password = hashedPassword;
-//     }
-
-//     const result = await usersCollection.findOneAndUpdate(
-//       { _id: new ObjectId(currentID) },
-//       { $set: updateFields },
-//       { returnDocument: "after" }
-//     );
-
-//     if (!result || !result.value) {
-//       return res.status(404).json({ message: "User not found!" });
-//     }
-
-//     res.json(result.value);
-//   } catch (err) {
-//     console.error("Error during updating:", err.message);
-//     res.status(500).send("Server error!");
-//   }
-// }
-// async function updateUserProfile(req, res){
-//     const currentID = req.params.id;
-//     const {email, password} = req.body;
-
-//     try {
-//         await connectClient();
-//         const db = client.db("codehub");
-//         const usersCollection = db.collection("users");
-
-//         let updateFields = {email};
-//         if(password){
-//             const salt = await bcrypt.genSalt(10);
-//             const hashedPassword = await bcrypt.hash(password, salt);
-//             updateFields.password = hashedPassword;
-//         }
-//         const result = await usersCollection.findOneAndUpdate({
-//             _id: new ObjectId(currentID),
-//         },
-//          {$set: updateFields},
-//         {returnDocument: "after"}
-//     );
-//     if(!result.value){
-//         return res.status(404).json({message:"User not found!!"});
-//     }
-//     res.send(result.value);
-//     } catch (error) {
-//          console.error("Error during updating:", error.message);
-//         res.status(500).send("Server error");
-//     }
-// };
-// const currentID = req.params.id;
-//   const { email, password } = req.body;
-
-//   try {
-//     await connectClient();
-//     const db = client.db("githubclone");
-//     const usersCollection = db.collection("users");
-
-//     let updateFields = { email };
-//     if (password) {
-//       const salt = await bcrypt.genSalt(10);
-//       const hashedPassword = await bcrypt.hash(password, salt);
-//       updateFields.password = hashedPassword;
-//     }
-
-//     const result = await usersCollection.findOneAndUpdate(
-//       {
-//         _id: new ObjectId(currentID),
-//       },
-//       { $set: updateFields },
-//       { returnDocument: "after" }
-//     );
-//     if (!result.value) {
-//       return res.status(404).json({ message: "User not found!" });
-//     }
-
-//     res.send(result.value);
-//   } catch (err) {
-//     console.error("Error during updating : ", err.message);
-//     res.status(500).send("Server error!");
-//   }
-// }
 
 async function deleteUserProfile(req, res){
      const currentID = req.params.id;

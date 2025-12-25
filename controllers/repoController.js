@@ -161,7 +161,7 @@ async function deleteRepositoryById(req, res){
 async function getActivityForUser(req, res) {
   const { userID } = req.params;
   try {
-    // aggregate by createdAt date (YYYY-MM-DD) and count
+    
     const data = await Repository.aggregate([
       { $match: { owner: new mongoose.Types.ObjectId(userID) } },
       {
