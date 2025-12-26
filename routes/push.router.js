@@ -51,7 +51,7 @@ router.post("/upload", async (req, res) => {
 
     // 1️⃣ Upload to S3 only if it's a file
     if (!isFolder) {
-      if (!content) {
+      if (content==undefined) {
         return res.status(400).json({ error: "File content missing" });
       }
 

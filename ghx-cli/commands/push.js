@@ -43,7 +43,7 @@ async function uploadRecursive(localPath, baseDir, commitId, collectedFiles, rep
         const items = await fs.readdir(localPath);
         for (const item of items) {
             const itemLocal = path.join(localPath, item);
-            await uploadRecursive(itemLocal, baseDir, commitId, collectedFiles);
+            await uploadRecursive(itemLocal, baseDir, commitId, collectedFiles, repoId);
         }
     } else {
         
