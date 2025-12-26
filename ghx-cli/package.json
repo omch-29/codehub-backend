@@ -1,6 +1,6 @@
 {
   "name": "codehub-ghx-cli",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -17,6 +17,7 @@
     "axios": "^1.13.2",
     "codehub-ghx-cli": "^1.0.3",
     "dotenv": "^17.2.3",
+    "mongoose": "^9.0.2",
     "path": "^0.12.7",
     "uuid": "^13.0.0",
     "yargs": "^18.0.0"

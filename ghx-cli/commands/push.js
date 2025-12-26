@@ -6,21 +6,21 @@ const path = require("path");
 const axios = require("axios");
 const mongoose = require('mongoose');
 const { s3, s3_BUCKET } = require("../config/aws-config");
-const PushLog = require('../../models/pushModel');
+// const PushLog = require('../../models/pushModel');
 require('dotenv').config;
 
 
-async function connectDB(){
-    const mongoURI = process.env.MONGODB_URI;
-        mongoose.connect(mongoURI)
-        .then(()=>console.log("push date saved"))
-        .catch((err)=>console.error("Unable to connect",err));
-}
+// async function connectDB(){
+//     const mongoURI = process.env.MONGODB_URI;
+//         mongoose.connect(mongoURI)
+//         .then(()=>console.log("push date saved"))
+//         .catch((err)=>console.error("Unable to connect",err));
+// }
 
 
 
 
-async function uploadRecursive(localPath, baseDir, commitId, collectedFiles) {
+async function uploadRecursive(localPath, baseDir, commitId, collectedFiles, repoId) {
 
     const relative = path.relative(baseDir, localPath).replace(/\\/g, "/");
 
@@ -55,12 +55,31 @@ async function uploadRecursive(localPath, baseDir, commitId, collectedFiles) {
         const fileIdPath = cleanPath;
         const fileContent = await fs.readFile(localPath);
 
-    
-        await s3.upload({
-            Bucket: s3_BUCKET,
-            Key: s3Key,
-            Body: fileContent
-        }).promise();
+        
+
+        const fileBase64 = fileContent.toString("base64");
+
+                await axios.post(
+                "https://codehub-backend-jj4b.onrender.com/push-log/upload",
+                {
+                    repoId,                   
+            s3Key,
+            content: fileBase64,
+            filename: path.basename(localPath),
+            folder: path.dirname(relative).replace(/\\/g, "/") === "." ? "" : path.dirname(relative).replace(/\\/g, "/"),
+            isFolder: false
+                }
+                );
+
+
+
+
+
+        // await s3.upload({
+        //     Bucket: s3_BUCKET,
+        //     Key: s3Key,
+        //     Body: fileContent
+        // }).promise();
 
         const filename = path.basename(localPath);
         const folder = path.dirname(relative).replace(/\\/g, "/"); 
@@ -142,7 +161,7 @@ async function pushRepo() {
                 commitFolder,
                 commitFolder, 
                 commitId,
-                newFiles
+                newFiles,repoId,
             );
         }
 
@@ -177,16 +196,25 @@ async function pushRepo() {
 
         await fs.rm(commitsPath, { recursive: true, force: true });
         await fs.mkdir(commitsPath);
-        await connectDB();
+        // await connectDB();
 
 
         console.log(" Push complete!");
         // console.log("Using repoId:", repoId);
 
-        await PushLog.create({
-    repoId: repoId,
-    pushedAt: new Date()
-});
+        try {
+            await axios.post('https://codehub-backend-jj4b.onrender.com/push-log', {
+                repoId: repoId,
+                pushedAt: new Date()
+            });
+            console.log("Push log saved to backend");
+        } catch (err) {
+            console.error("Failed to save push log:", err.message);
+        }
+//         await PushLog.create({
+//     repoId: repoId,
+//     pushedAt: new Date()
+// });
 
         process.exit(0);
     } catch (err) {
