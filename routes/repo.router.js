@@ -194,13 +194,5 @@ repoRouter.get("/folder/:repoId", async (req, res) => {
 
 //         const fileData = await CommitFile.findOne({ path: file.path });
 
-//         res.json({
-//             filename,
-//             content: fileData.content,
-//             commitTime: fileData.updatedAt
-//         });
-//     } catch (err) {
-//         res.status(500).json({ error: "Server error" });
-//     }
-// });
+
 module.exports = repoRouter;
