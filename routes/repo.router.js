@@ -117,23 +117,7 @@ repoRouter.get("/folder/:repoId", async (req, res) => {
 
 
 
-// repoRouter.get("/file/:repoId", async (req, res) => {
-//   try {
-    
-//     const { path } = req.query;
 
-//     if (!path) return res.status(400).json({ error: "File path is required" });
-
-//     const BUCKET = process.env.S3_BUCKET;
-
-//     console.log("REQUEST →", BUCKET, path);
-
-//     const command = new GetObjectCommand({
-//       Bucket: BUCKET,
-//       Key: path,
-//     });
-
-//     const data = await s3.send(command);
 
 //     let chunks = [];
 //     for await (const chunk of data.Body) chunks.push(chunk);
