@@ -53,22 +53,7 @@ repoRouter.get("/search", async (req, res) => {
   }
 });
 
-// repoRouter.get("/file/:repoId/:path", async (req, res) => {
-//     try {
-//         const key = decodeURIComponent(req.params.path);
 
-//         const data = await s3.getObject({
-//             Bucket: s3_BUCKET,
-//             Key: key
-//         }).promise();
-
-//         res.setHeader("Content-Type", data.ContentType || "application/octet-stream");
-//         res.send(data.Body);
-//     } catch (err) {
-//         console.error("Download error:", err);
-//         res.status(500).send("Error downloading file");
-//     }
-// });
 
 
 repoRouter.get("/file/:repoId", async (req, res) => {
@@ -170,29 +155,6 @@ repoRouter.get("/folder/:repoId", async (req, res) => {
 //     const repo = await Repository.findById(repoId);
 //     if (!repo) return res.status(404).send("Repo not found");
 
-//     const file = repo.content.find(f => f.path === path);
-//     if (!file) return res.status(404).send("File not found");
-
-//     const fs = require("fs");
-//     // const data = fs.readFileSync(file.path, "utf8");
-//     const fullPath = path.join(__dirname, "..", "..", file.path);
-//     const data = fs.readFileSync(fullPath, "utf8");
-//     res.send(data);
-//   } catch (err) {
-//     res.status(500).send("Error reading file");
-//   }
-// });
-// repoRouter.get("/file", async (req, res) => {
-//     try {
-//         const { repoId, filename, commit } = req.query;
-
-//         const repo = await Repository.findById(repoId);
-//         if (!repo) return res.status(404).json({ error: "Repo not found" });
-
-//         const file = repo.content.find(f => f.filename === filename && f.commit === commit);
-//         if (!file) return res.status(404).json({ error: "File not found" });
-
-//         const fileData = await CommitFile.findOne({ path: file.path });
 
 
 module.exports = repoRouter;
