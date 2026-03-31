@@ -35,7 +35,6 @@ repoRouter.get("/contributions/repo/:repoId", repoController.getPushData);
 repoRouter.post("/log-push", repoController.logPush);
 
 
-// 🔥 SEARCH ROUTE
 repoRouter.get("/search", async (req, res) => {
   try {
     const { name } = req.query;
