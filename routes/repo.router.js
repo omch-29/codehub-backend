@@ -130,14 +130,6 @@ repoRouter.get("/folder/:repoId", async (req, res) => {
 //   }
 // });
 
-// repoRouter.get("/file/:repoId", async (req, res) => {
-//   const { repoId } = req.params;
-//   const { path } = req.query;
-
-//   try {
-//     const repo = await Repository.findById(repoId);
-//     if (!repo) return res.status(404).send("Repo not found");
-
 
 
 module.exports = repoRouter;
