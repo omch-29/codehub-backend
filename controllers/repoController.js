@@ -85,7 +85,7 @@ async function fetchRepositoryForCurrentUser(req, res){
       return res.json({ message: "No repositories yet", repositories: [] });
       // return res.status(404).json({ error: "User Repositories not found!" });
     }
-    // console.log(repositories);
+    
     res.json({ message: "Repositories found!", repositories });
   } catch (err) {
     console.error("Error during fetching user repositories : ", err.message);
@@ -170,7 +170,7 @@ async function getActivityForUser(req, res) {
           count: { $sum: 1 }
         }
       },
-      { $sort: { _id: 1 } } // oldest -> newest
+      { $sort: { _id: 1 } } 
     ]);
 
 

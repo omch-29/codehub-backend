@@ -49,7 +49,7 @@ router.post("/upload", async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // 1️⃣ Upload to S3 only if it's a file
+    //Upload to S3 only if it's a file
     if (!isFolder) {
       if (content==undefined) {
         return res.status(400).json({ error: "File content missing" });
@@ -62,7 +62,7 @@ router.post("/upload", async (req, res) => {
       }).promise();
     }
 
-    // 2️⃣ Save metadata to MongoDB
+  
     await Repo.findByIdAndUpdate(repoId, {
       $push: {
         content: {

@@ -141,7 +141,6 @@ async function updateUserProfile(req, res) {
       { returnDocument: "after" }
     );
 
-    // console.log("result:", result);
 
     if (!result) {
       return res.status(404).json({ message: "User not found!" });
