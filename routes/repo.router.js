@@ -115,7 +115,6 @@ repoRouter.get("/folder/:repoId", async (req, res) => {
 
 
 
-//     const content = Buffer.concat(chunks).toString("utf8");
 
 //     return res.json({ content });
 
