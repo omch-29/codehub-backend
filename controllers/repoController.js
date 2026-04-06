@@ -182,7 +182,6 @@ async function getActivityForUser(req, res) {
   }
 }
 
-
 async function logPush(req, res){
   try {
     const { repoId, date } = req.body;
@@ -199,7 +198,6 @@ async function logPush(req, res){
     return res.status(500).json({ message: "Server error" });
   }
 };
-
 
 async function getPushData(req, res) {
   try {
