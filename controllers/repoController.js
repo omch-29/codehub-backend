@@ -199,20 +199,43 @@ async function logPush(req, res){
   }
 };
 
+// async function getPushData(req, res) {
+//   try {
+//     const { repoId } = req.params;
+
+//     const pushes = await PushLog.find().sort({ pushedAt: 1 });
+
+//     return res.status(200).json(pushes);
+
+//   } catch (err) {
+//     console.log("Error fetching contributions", err);
+//     return res.status(500).json({ message: "Server error" });
+//   }
+// }
 async function getPushData(req, res) {
   try {
     const { repoId } = req.params;
-
-    const pushes = await PushLog.find().sort({ pushedAt: 1 });
-
+    const pushes = await PushLog.find({ repoId }).sort({ pushedAt: 1 }); 
     return res.status(200).json(pushes);
-
   } catch (err) {
     console.log("Error fetching contributions", err);
     return res.status(500).json({ message: "Server error" });
   }
 }
-
+async function getUserContributions(req, res) {
+  try {
+    const { userID } = req.params;
+    // Get all repos owned by this user
+    const repos = await Repository.find({ owner: userID }, '_id');
+    const repoIds = repos.map(r => r._id);
+    // Get all pushes for those repos
+    const pushes = await PushLog.find({ repoId: { $in: repoIds } }).sort({ pushedAt: 1 });
+    return res.status(200).json(pushes);
+  } catch (err) {
+    console.error("Error fetching user contributions:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+}
 module.exports = {
      createRepository,
      getAllRepositories,
@@ -225,4 +248,5 @@ module.exports = {
      getActivityForUser,
      getPushData,
      logPush,
+     getUserContributions,
 };

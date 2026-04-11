@@ -33,6 +33,7 @@ repoRouter.put("/visibility/:id", repoController.toggleVisibilityById);
 repoRouter.delete("/delete/:id", repoController.deleteRepositoryById);
 repoRouter.get("/contributions/repo/:repoId", repoController.getPushData);
 repoRouter.post("/log-push", repoController.logPush);
+repoRouter.get("/contributions/user/:userID", repoController.getUserContributions);
 
 
 repoRouter.get("/search", async (req, res) => {
